@@ -1,5 +1,3 @@
-<!-- src/frontend/home/home.html -->
-
 {% load static %}
 
 <!DOCTYPE html>
@@ -8,13 +6,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AGI Language</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
     <script defer src="{% static 'js/app.js' %}"></script>
+    
 </head>
 <body>
-    <header class="header">
+<header id="header">
+    <nav id="navbar">
+        <a class="navbar-elements" href="#">Home</a>
+        <a class="navbar-elements" href="#">Contact</a>
+        <a class="navbar-elements" href="#">Login</a>
+    </nav>
+    <div id="toggle-button">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+    </div>
+    <div class="hero-section">
+        <h1>
+            <span class="hover-letter">A</span>
+            <span class="hover-letter">G</span>
+            <span class="hover-letter">I</span>
+            <span> </span>
+            <span class="hover-letter">L</span>
+            <span class="hover-letter">a</span>
+            <span class="hover-letter">n</span>
+            <span class="hover-letter">g</span>
+            <span class="hover-letter">u</span>
+            <span class="hover-letter">a</span>
+            <span class="hover-letter">g</span>
+            <span class="hover-letter">e</span>
+        </h1>
+        <p>Changing how you learn</p>
+        <a href="#" class="cta-button">Start Learning</a>
+    </div>
+</header>
 
-        <p class="footer-text">PLEASE WORK</p>
-    </footer>
+<script>
+    const toggleButton = document.getElementById("toggle-button");
+    const navbar = document.getElementById("navbar");
+    let isNavbarVisible = false;
+    toggleButton.addEventListener("click", function() {
+        if (isNavbarVisible) {
+            navbar.style.display = "none";
+            isNavbarVisible = false;
+        } else {
+            navbar.style.display = "flex";
+            isNavbarVisible = true;
+        }
+    });
+    window.addEventListener("resize", function() {
+        navbar.style.display = "flex";
+    });
+</script>
 </body>
 </html>
