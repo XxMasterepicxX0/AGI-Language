@@ -1,5 +1,4 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/app.css' %}">
     <script defer src="{% static 'js/app.js' %}"></script>
-    
 </head>
 <body>
 <header id="header">
@@ -39,7 +37,7 @@
             <span class="hover-letter">e</span>
         </h1>
         <p>Changing how you learn</p>
-        <a href="#" class="cta-button">Start Learning</a>
+        <a class="cta-button" href="{% url 'learning' %}">Start Learning</a>
     </div>
 </header>
 

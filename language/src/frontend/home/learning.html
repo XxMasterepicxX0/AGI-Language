@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Recorder</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(to bottom, #6a11cb 0%, #2575fc 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            color: #333;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            z-index: 2;
+        }
+        .container {
+            text-align: center;
+            z-index: 2;
+        }
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        button:disabled {
+            background-color: #cccccc;
+        }
+        button:hover:not(:disabled) {
+            background-color: #0056b3;
+            transform: scale(1.1);
+        }
+        h2 {
+            color: white;
+            font-size: 1.8em;
+            margin-top: 30px;
+        }
+        p {
+            color: black;
+            font-size: 1em;
+            margin-top: 15px;
+        }
+        audio {
+            display: block;
+            margin: 0 auto;
+            margin-top: 20px;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 10px;
+            outline: none;
+            z-index: 2;
+        }
+        .waves {
+            position: absolute;
+            width: 100%;
+            height: 20%;
+            bottom: 0;
+            left: 0;
+            z-index: 1;
+            overflow: hidden;
+            line-height: 0;
+        }
+        .waves svg {
+            position: relative;
+            display: block;
+            width: 200%;
+            height: 100%;
+        }
+        .wave1 {
+            fill: rgba(255, 255, 255, 0.3);
+        }
+        .wave2 {
+            fill: rgba(255, 255, 255, 0.5);
+        }
+        .wave3 {
+            fill: rgba(255, 255, 255, 0.7);
+        }
+        .wave4 {
+            fill: #fff;
+        }
+        .waves use {
+            animation: move-waves 20s cubic-bezier(.55, .5, .45, .5) infinite;
+        }
+        .waves use:nth-child(1) {
+            animation-duration: 20s;
+            animation-delay: -2s;
+        }
+        .waves use:nth-child(2) {
+            animation-duration: 25s;
+            animation-delay: -3s;
+        }
+        .waves use:nth-child(3) {
+            animation-duration: 30s;
+            animation-delay: -4s;
+        }
+        .waves use:nth-child(4) {
+            animation-duration: 35s;
+            animation-delay: -5s;
+        }
+        @keyframes move-waves {
+            0% {
+                transform: translate3d(-90px, 0, 0);
+            }
+            100% {
+                transform: translate3d(85px, 0, 0);
+            }
+        }
+        .chat-log {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 600px;
+            width: 90%;
+            margin: 20px auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .chat-log p {
+            margin: 10px 0;
+            color: #333;
+        }
+        .chat-log p span {
+            display: block;
+            margin-top: 5px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Voice Recorder</h1>
+    <div class="container">
+        <button id="recordButton">Start Recording</button>
+        <button id="stopButton" disabled>Stop Recording</button>
+        <h2>Original Audio</h2>
+        <audio id="originalAudio" controls></audio>
+        <h2>Returned Audio</h2>
+        <audio id="returnedAudio" controls></audio>
+    </div>
+    <div class="chat-log" id="chatLog">
+        <p id="originalMessage"></p>
+        <p id="message"></p>
+    </div>
+    <div class="waves">
+        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28" preserveAspectRatio="none">
+            <defs>
+                <path id="wave-path" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18v44h-352z" />
+            </defs>
+            <g class="wave-group">
+                <use xlink:href="#wave-path" class="wave1"/>
+                <use xlink:href="#wave-path" class="wave2"/>
+                <use xlink:href="#wave-path" class="wave3"/>
+                <use xlink:href="#wave-path" class="wave4"/>
+            </g>
+        </svg>
+    </div>
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        
+        const recordButton = document.getElementById('recordButton');
+        const stopButton = document.getElementById('stopButton');
+        const originalAudio = document.getElementById('originalAudio');
+        const returnedAudio = document.getElementById('returnedAudio');
+        const message = document.getElementById('message');
+        const originalMessage = document.getElementById('originalMessage');
+
+        recordButton.addEventListener('click', async () => {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                const audioURL = URL.createObjectURL(audioBlob);
+                originalAudio.src = audioURL;
+
+                const formData = new FormData();
+                formData.append('audio', audioBlob, 'recording.wav');
+
+                const response = await fetch('/process-audio/', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const audioBlobReturned = await response.blob();
+                const returnedAudioURL = URL.createObjectURL(audioBlobReturned);
+                returnedAudio.src = returnedAudioURL;
+
+                const backendMessage = response.headers.get('X-Message');
+                const backendOriginalMessage = response.headers.get('X-Message-Original');
+                message.innerText = `Original: ${backendMessage}`;
+                originalMessage.innerText = `Response: ${backendOriginalMessage}`;
+                console.log(backendMessage);
+                console.log(backendOriginalMessage);
+            };
+
+            mediaRecorder.start();
+            recordButton.disabled = true;
+            stopButton.disabled = false;
+        });
+
+        stopButton.addEventListener('click', () => {
+            mediaRecorder.stop();
+            recordButton.disabled = false;
+            stopButton.disabled = true;
+        });
+    </script>
+</body>
+</html>
